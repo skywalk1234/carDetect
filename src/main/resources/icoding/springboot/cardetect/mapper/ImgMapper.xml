@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="icoding.springboot.cardetect.mapper.ImgMapper">
+    <select id="findAll" resultType="icoding.springboot.cardetect.pojo.Img">
+        select *
+        from imgs
+        join defect on imgs.id=defect.img_id
+        <where>
+            <if test="id != null">id = #{id}</if>
+            <if test="type != null"> and type=#{type} </if>
+            <if test="uploader != null and uploader != ''"> and uploader=#{uploader} </if>
+            <if test="begin != null and end != null"> and inspect_time between #{begin} and #{end}</if>
+        </where>
+    </select>
+    <delete id="deleteById">
+            delete from imgs where id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </delete>
+    <delete id="deleteByDefId">
+        delete from defect where img_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+<!--    <select id="findByCriteria" resultType="icoding.springboot.tlias.pojo.Emp">-->
+<!--        select * from emp-->
+<!--        <where>-->
+<!--            <if test="name != null and name != '' "> name like concat('%',#{name},'%') </if>-->
+<!--            <if test="gender!=null">and gender = #{gender}</if>-->
+<!--            <if test="begin != null">and entrydate between #{begin} and #{end}</if>-->
+<!--        </where>-->
+<!--    </select>-->
+<!--    <delete id="deletById">-->
+<!--        delete from emp where id in-->
+<!--        <foreach collection="ids" item="id" open="(" separator="," close=")">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+<!--    </delete>-->
+<!--    <insert id="insert">-->
+<!--        insert into emp values (null,#{username}, #{password}, #{name}, #{gender}, #{image}, #{job}, #{entrydate}, #{deptId}, #{createTime},#{updateTime})-->
+<!--    </insert>-->
+
+<!--    <update id="update">-->
+<!--        UPDATE emp-->
+<!--        SET username = #{username},-->
+<!--            password = #{password},-->
+<!--            name = #{name},-->
+<!--            gender = #{gender},-->
+<!--            image = #{image},-->
+<!--            job = #{job},-->
+<!--            entryDate = #{entrydate},-->
+<!--            dept_id = #{deptId},-->
+<!--            update_time = #{updateTime}-->
+<!--        WHERE id = #{id};-->
+<!--    </update>-->
+
+</mapper>
