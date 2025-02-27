@@ -7,7 +7,7 @@ import icoding.springboot.cardetect.pojo.Img;
 import icoding.springboot.cardetect.pojo.PageBean;
 import icoding.springboot.cardetect.service.ImgService;
 import icoding.springboot.cardetect.utils.MYSQL_;
-import icoding.springboot.cardetect.utils.OssTest;
+//import icoding.springboot.cardetect.utils.OssTest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -68,17 +68,17 @@ public class ImgServiceImpl implements ImgService {
         return imgMapper.deleteById(ids)+imgMapper.deleteByDefId(ids);
     }
 
-    @Override
-    public Map<String,String> getSignature() {
-        OssTest ot = new OssTest();
-        try {
-            Map<String,String> res = ot.PostObject();
-            return res;
-        } catch (Exception e) {
-            log.info("获取签名失败");
-            return null;
-        }
-    }
+//    @Override
+//    public Map<String,String> getSignature() {
+//        OssTest ot = new OssTest();
+//        try {
+//            Map<String,String> res = ot.PostObject();
+//            return res;
+//        } catch (Exception e) {
+//            log.info("获取签名失败");
+//            return null;
+//        }
+//    }
     @Scheduled(cron = "0 0 3 * * ?")//每天凌晨三点执行
     public void backup(){
         MYSQL_.backup();
