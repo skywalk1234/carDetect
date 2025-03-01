@@ -4,7 +4,7 @@ import icoding.springboot.cardetect.pojo.Img;
 import icoding.springboot.cardetect.pojo.PageBean;
 import icoding.springboot.cardetect.pojo.Result;
 import icoding.springboot.cardetect.service.ImgService;
-import icoding.springboot.cardetect.utils.OssUtils;
+//import icoding.springboot.cardetect.utils.OssUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,30 +23,30 @@ import static icoding.springboot.cardetect.interceptor.CheckInterceptor.current_
 @RestController
 @Slf4j
 public class ImgController {
-    @Autowired
-    private OssUtils ossUtils;
+//    @Autowired
+//    private OssUtils ossUtils;
     @Autowired
     private ImgService imgService;
-    @GetMapping("/get_signature")
-    public Result getSignature() {
-        Map<String,String> res = imgService.getSignature();
-        return Result.success(res);
-    }
+//    @GetMapping("/get_signature")
+//    public Result getSignature() {
+//        Map<String,String> res = imgService.getSignature();
+//        return Result.success(res);
+//    }
 
-    @PostMapping("/upload_img")
-    public Result uploadImg(@RequestParam("image") List<MultipartFile> images) throws IOException {
-        for (MultipartFile file : images) {
-            String url = ossUtils.upload(file);
-            if(url != null) {
-                log.info("文件上传成功，路径：{}",url);
-                return Result.success(url);
-            }else{
-                return Result.error("上传失败");
-            }
-        }
-        return Result.success();
-        //String url = ossUtils.upload(image);
-    }
+//    @PostMapping("/upload_img")
+//    public Result uploadImg(@RequestParam("image") List<MultipartFile> images) throws IOException {
+//        for (MultipartFile file : images) {
+//            String url = ossUtils.upload(file);
+//            if(url != null) {
+//                log.info("文件上传成功，路径：{}",url);
+//                return Result.success(url);
+//            }else{
+//                return Result.error("上传失败");
+//            }
+//        }
+//        return Result.success();
+//        //String url = ossUtils.upload(image);
+//    }
 
     @GetMapping("/inspect")
     public Result inspect(String image_url){

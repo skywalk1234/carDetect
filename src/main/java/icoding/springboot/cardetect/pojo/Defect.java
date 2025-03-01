@@ -11,11 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Defect {
+    //这个类相当于你写的ModelRes类
     private int defId;
     private int imgId;
     private int type;
     private String source;
     private LocalDateTime createTime;
+    private String position;
 //    private float confidence;
 //    private List<Integer> position;
 
