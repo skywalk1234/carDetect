@@ -61,7 +61,6 @@ public class ImgServiceImpl implements ImgService {
                 Defect defect = new Defect();
                 String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
                 int type = img_name.charAt(img_name.length()-1)-'0';//将字符转成数字
-
                 defect.setType(type);
                 defect.setImgId(imgId);
                 defect.setPosition(m.getEncodedPixels());
