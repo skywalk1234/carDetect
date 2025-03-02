@@ -53,7 +53,7 @@ public class ImgController {
     public Result inspect(String image_url){
         Img img = imgService.addImg(image_url,current_username);
         //这里的img已经是有id的了
-        CompletableFuture<Result> future = imgService.processImageAsync(image_url);//这一步是异步执行的，不会阻塞主线程
+        CompletableFuture<Result> future = imgService.processImageAsync(img.getId(),image_url);//这一步是异步执行的，不会阻塞主线程
 
         return Result.success(img);
     }

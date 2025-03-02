@@ -4,10 +4,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import icoding.springboot.cardetect.mapper.DefectMapper;
 import icoding.springboot.cardetect.mapper.ImgMapper;
-import icoding.springboot.cardetect.pojo.Img;
-import icoding.springboot.cardetect.pojo.PageBean;
-import icoding.springboot.cardetect.pojo.Result;
+import icoding.springboot.cardetect.pojo.*;
 import icoding.springboot.cardetect.service.ImgService;
+import icoding.springboot.cardetect.service.ModelResService;
 import icoding.springboot.cardetect.utils.MYSQL_;
 //import icoding.springboot.cardetect.utils.OssTest;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,8 @@ public class ImgServiceImpl implements ImgService {
     private ImgMapper imgMapper;
     @Autowired
     private DefectMapper defectMapper;
-
+    @Autowired
+    private ModelResService modelResService;
     @Override
     public Img addImg(String url,String uploader) {
         Img img = new Img();
@@ -47,14 +47,28 @@ public class ImgServiceImpl implements ImgService {
 
     @Async("taskExecutor") //新建一个线程采用异步执行
     @Override
-    public CompletableFuture<Result> processImageAsync(String imageUrl) {
+    public CompletableFuture<Result> processImageAsync(Integer imgId,String imageUrl) {
         try {
             //1.调用ModelResServiceImpl中的相关方法与机器学习的模型交互，并拿到对应的解析完的数据
             log.info("开始处理。。。。。");
             //Thread.sleep(5000);//模拟一个耗时操作
             // 2. 调用defectMapper中的insert方法将数据写入到defect这张表中
+            String res_json = modelResService.sendQuest(imageUrl);//发送请求并拿到响应的json
+            List<ModelResponse> res = modelResService.parseQuestData(res_json);//解析json格式
 
+            for(ModelResponse m : res) {
+                //提取列表中每一个的结果构建defect实例
+                Defect defect = new Defect();
+                String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
+                int type = img_name.charAt(img_name.length()-1)-'0';//将字符转成数字
 
+                defect.setType(type);
+                defect.setImgId(imgId);
+                defect.setPosition(m.getEncodedPixels());
+                defect.setCreateTime(LocalDateTime.now());
+                defect.setSource("machine");
+                modelResService.processQuestData(defect);
+            }
             // 3. 返回成功响应
             return CompletableFuture.completedFuture(Result.success());
         } catch (Exception e) {

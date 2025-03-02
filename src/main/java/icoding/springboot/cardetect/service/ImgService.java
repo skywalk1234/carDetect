@@ -18,5 +18,5 @@ public interface ImgService {
     public int deleteImg(List<Integer> ids);
     //public Map<String,String> getSignature();
     public int restore(LocalDate time);
-    public CompletableFuture<Result> processImageAsync(String imageUrl);
+    public CompletableFuture<Result> processImageAsync(Integer imgId,String imageUrl);
 }
