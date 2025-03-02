@@ -1,10 +1,10 @@
 package icoding.springboot.cardetect.service;
 
 
+import icoding.springboot.cardetect.pojo.Defect;
 
 public interface ModelResService {
-// ModelRes getModelRes(Integer defectId);
-// int addModelRes(ModelRes modelRes);
-// int deleteModelRes(Integer defectId);
-
+ String sendQuest(int id);
+ Defect parseQuestData(String json);
+ void processQuestData(Defect defect);
 }
