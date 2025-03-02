@@ -16,6 +16,7 @@ public class DefectController {
     @Autowired
     private DefectService defectService;
     @GetMapping("/flaw/img/{id}")
+    //前端根据对应的图片id请求该图片所有的缺陷信息
     public Result getDefect(@PathVariable int id) {
         List<Defect> defectList = defectService.getDefect(id);
         if(defectList.isEmpty()){
