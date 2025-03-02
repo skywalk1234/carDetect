@@ -1,13 +1,10 @@
 package icoding.springboot.cardetect;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.OSSException;
+
 import icoding.springboot.cardetect.mapper.DefectMapper;
-import icoding.springboot.cardetect.pojo.Defect;
-import icoding.springboot.cardetect.pojo.ModelResponse;
+
 import icoding.springboot.cardetect.service.ModelResService;
-import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
