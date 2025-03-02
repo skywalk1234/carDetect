@@ -2,14 +2,17 @@ package icoding.springboot.cardetect.service.impl;/* I love coding */
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import icoding.springboot.cardetect.mapper.DefectMapper;
 import icoding.springboot.cardetect.mapper.ImgMapper;
 import icoding.springboot.cardetect.pojo.Img;
 import icoding.springboot.cardetect.pojo.PageBean;
+import icoding.springboot.cardetect.pojo.Result;
 import icoding.springboot.cardetect.service.ImgService;
 import icoding.springboot.cardetect.utils.MYSQL_;
 //import icoding.springboot.cardetect.utils.OssTest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,23 +20,50 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
 public class ImgServiceImpl implements ImgService {
     @Autowired
     private ImgMapper imgMapper;
+    @Autowired
+    private DefectMapper defectMapper;
 
     @Override
     public Img addImg(String url,String uploader) {
         Img img = new Img();
 
+
         img.setImage(url);
         img.setInspectTime(LocalDateTime.now());
         img.setUploader(uploader);
-        imgMapper.insert(img);
+        imgMapper.insert(img);//这是将图片信息写入到数据库的imgs表中
+
+
+
         return imgMapper.get_last_insert_img();
     }
+
+    @Async("taskExecutor") //新建一个线程采用异步执行
+    @Override
+    public CompletableFuture<Result> processImageAsync(String imageUrl) {
+        try {
+            //1.调用ModelResServiceImpl中的相关方法与机器学习的模型交互，并拿到对应的解析完的数据
+            log.info("开始处理。。。。。");
+            //Thread.sleep(5000);//模拟一个耗时操作
+            // 2. 调用defectMapper中的insert方法将数据写入到defect这张表中
+
+
+            // 3. 返回成功响应
+            return CompletableFuture.completedFuture(Result.success());
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+
+
 
     @Override
     public PageBean findImg(Integer id,Integer type, String uploader, LocalDateTime time_begin, LocalDateTime time_end, Integer page, Integer pageSize) {

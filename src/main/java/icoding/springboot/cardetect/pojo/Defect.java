@@ -16,8 +16,8 @@ public class Defect {
     private int imgId;
     private int type;
     private String source;
-    private LocalDateTime createTime;
     private String position;
+    private LocalDateTime createTime;
 //    private float confidence;
 //    private List<Integer> position;
 

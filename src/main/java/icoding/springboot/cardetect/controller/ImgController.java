@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import static icoding.springboot.cardetect.interceptor.CheckInterceptor.current_username;
 @CrossOrigin(origins = "http://192.168.177.107:8080")
@@ -47,11 +48,13 @@ public class ImgController {
 //        return Result.success();
 //        //String url = ossUtils.upload(image);
 //    }
-
+    //前端发送检测请求
     @GetMapping("/inspect")
     public Result inspect(String image_url){
         Img img = imgService.addImg(image_url,current_username);
         //这里的img已经是有id的了
+        CompletableFuture<Result> future = imgService.processImageAsync(image_url);//这一步是异步执行的，不会阻塞主线程
+
         return Result.success(img);
     }
     @GetMapping("/records")

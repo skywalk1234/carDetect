@@ -30,6 +30,6 @@ public class ModelResServiceImpl implements ModelResService {
 //    }
     //真的非常抱歉，是我之前没讲清楚，上面这些代码跟DefectServiceImpl中实现的是一样的功能所以就先注释掉了。
     //但是这个类可以保留用来执行给机器学习的模型发送和接收请求，解析数据的任务
-    //解析完数据就调用DefectService中的addDefect方法把检测结果写入数据库
+
 
 }

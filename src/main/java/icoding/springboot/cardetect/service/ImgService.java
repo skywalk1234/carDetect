@@ -2,12 +2,14 @@ package icoding.springboot.cardetect.service;/* I love coding */
 
 import icoding.springboot.cardetect.pojo.Img;
 import icoding.springboot.cardetect.pojo.PageBean;
+import icoding.springboot.cardetect.pojo.Result;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 public interface ImgService {
@@ -16,4 +18,5 @@ public interface ImgService {
     public int deleteImg(List<Integer> ids);
     //public Map<String,String> getSignature();
     public int restore(LocalDate time);
+    public CompletableFuture<Result> processImageAsync(String imageUrl);
 }
