@@ -50,10 +50,14 @@ public class ImgController {
 //    }
     //前端发送检测请求
     @GetMapping("/inspect")
-    public Result inspect(String image_url){
+    public Result inspect(String image_url,@RequestParam("image") List<MultipartFile> images){
         Img img = imgService.addImg(image_url,current_username);
         //这里的img已经是有id的了
-        CompletableFuture<Result> future = imgService.processImageAsync(img.getId(),image_url);//这一步是异步执行的，不会阻塞主线程
+        for(MultipartFile file : images){
+            imgService.detect_img(img.getId(),file);
+        }
+
+        //CompletableFuture<Result> future = imgService.processImageAsync(img.getId(),image_url);//这一步是异步执行的，不会阻塞主线程
 
         return Result.success(img);
     }

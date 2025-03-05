@@ -4,6 +4,7 @@ import icoding.springboot.cardetect.pojo.Img;
 import icoding.springboot.cardetect.pojo.PageBean;
 import icoding.springboot.cardetect.pojo.Result;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,4 +20,5 @@ public interface ImgService {
     //public Map<String,String> getSignature();
     public int restore(LocalDate time);
     public CompletableFuture<Result> processImageAsync(Integer imgId,String imageUrl);
+    public int detect_img(Integer imgId,MultipartFile file);
 }

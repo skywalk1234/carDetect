@@ -9,6 +9,7 @@ import icoding.springboot.cardetect.pojo.Defect;
 import icoding.springboot.cardetect.service.DefectService;
 import icoding.springboot.cardetect.service.ModelResService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,21 +26,22 @@ public class ModelResServiceImpl implements ModelResService {
 
 
     @Override
-    public String sendQuest(String url)
+    public String sendQuest(MultipartFile file)
     {
         try {
-            // 创建 HttpClient 实例
-            HttpClient client = HttpClient.newHttpClient();
+            byte[] bytes = file.getBytes();
+
             //到时候部署在容器内一定要改这个url
-            String path = "http://localhost:8080/inspect_img?image_url="+url;
+            String path = "http://localhost:8080/inspect_img";
             // 创建 HttpRequest 实例
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(path))
-                    .header("User-Agent", "backend server")
-                    .GET()
+                    .uri(new URI(path))
+                    .header("Content-Type", "multipart/form-data; boundary=custom_boundary") // 根据需要调整boundary
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(bytes))
                     .build();
 
             // 发送请求并获取响应
+            HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             // 输出状态码和响应内容

@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,36 +48,55 @@ public class ImgServiceImpl implements ImgService {
 
     @Async("taskExecutor") //新建一个线程采用异步执行
     @Override
-    public CompletableFuture<Result> processImageAsync(Integer imgId,String imageUrl) {
-        try {
-            //1.调用ModelResServiceImpl中的相关方法与机器学习的模型交互，并拿到对应的解析完的数据
-            log.info("开始处理。。。。。");
-            //Thread.sleep(5000);//模拟一个耗时操作
-            // 2. 调用defectMapper中的insert方法将数据写入到defect这张表中
-            String res_json = modelResService.sendQuest(imageUrl);//发送请求并拿到响应的json
-            List<ModelResponse> res = modelResService.parseQuestData(res_json);//解析json格式
-
-            for(ModelResponse m : res) {
-                //提取列表中每一个的结果构建defect实例
-                Defect defect = new Defect();
-                String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
-                int type = img_name.charAt(img_name.length()-1)-'0';//将字符转成数字
-                defect.setType(type);
-                defect.setImgId(imgId);
-                defect.setPosition(m.getEncodedPixels());
-                defect.setCreateTime(LocalDateTime.now());
-                defect.setSource("machine");
-                modelResService.processQuestData(defect);
-            }
-            // 3. 返回成功响应
-            return CompletableFuture.completedFuture(Result.success());
-        } catch (Exception e) {
-            return CompletableFuture.failedFuture(e);
-        }
+    public CompletableFuture<Result> processImageAsync(Integer imgId, String imageUrl) {
+//        try {
+//            //1.调用ModelResServiceImpl中的相关方法与机器学习的模型交互，并拿到对应的解析完的数据
+//            log.info("开始处理。。。。。");
+//            //Thread.sleep(5000);//模拟一个耗时操作
+//            // 2. 调用defectMapper中的insert方法将数据写入到defect这张表中
+//            String res_json = modelResService.sendQuest(imageUrl);//发送请求并拿到响应的json
+//            List<ModelResponse> res = modelResService.parseQuestData(res_json);//解析json格式
+//
+//            for(ModelResponse m : res) {
+//                //提取列表中每一个的结果构建defect实例
+//                Defect defect = new Defect();
+//                String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
+//                int type = img_name.charAt(img_name.length()-1)-'0';//将字符转成数字
+//                defect.setType(type);
+//                defect.setImgId(imgId);
+//                defect.setPosition(m.getEncodedPixels());
+//                defect.setCreateTime(LocalDateTime.now());
+//                defect.setSource("machine");
+//                modelResService.processQuestData(defect);
+//            }
+//            // 3. 返回成功响应
+//            return CompletableFuture.completedFuture(Result.success());
+//        } catch (Exception e) {
+//            return CompletableFuture.failedFuture(e);
+//        }
+        return null;
     }
 
 
+    @Override
+    public int detect_img(Integer imgId,MultipartFile file) {
+        String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
+        List<ModelResponse> res = modelResService.parseQuestData(res_json);//解析json格式
 
+        for(ModelResponse m : res) {
+            //提取列表中每一个的结果构建defect实例
+            Defect defect = new Defect();
+            String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
+            int type = img_name.charAt(img_name.length()-1)-'0';//将字符转成数字
+            defect.setType(type);
+            defect.setImgId(imgId);
+            defect.setPosition(m.getEncodedPixels());
+            defect.setCreateTime(LocalDateTime.now());
+            defect.setSource("machine");
+            modelResService.processQuestData(defect);
+        }
+        return 0;
+    }
 
     @Override
     public PageBean findImg(Integer id,Integer type, String uploader, LocalDateTime time_begin, LocalDateTime time_end, Integer page, Integer pageSize) {
