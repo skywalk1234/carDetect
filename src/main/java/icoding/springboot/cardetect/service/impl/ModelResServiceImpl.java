@@ -23,7 +23,7 @@ public class ModelResServiceImpl implements ModelResService {
 
     @Autowired
     private DefectService defectService;
-
+    //
 
     @Override
     public String sendQuest(MultipartFile file)
