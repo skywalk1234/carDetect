@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ModelResponse {
-    private String ImageId_ClassId;
-    private String EncodedPixels;
+    private String image;
+    private String type;
+    private String position;
 }

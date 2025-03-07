@@ -67,17 +67,25 @@ public class ModelResServiceImpl implements ModelResService {
     public List<ModelResponse> parseQuestData(String json){
         List<ModelResponse> res = JsonUtil.parseJson(json, ModelResponse.class);
         /*
-        //机器学习返回的json格式是这样的，需要先用ModelResponse这个类映射
+        //机器学习返回的数据是这样的
         [
-    {
-        "ImageId_ClassId": "0002cc93b.jpg_1",
-        "EncodedPixels":"29102 12 29346 24 29602 24 29858 24 30114 24 30370 24 30626 24"
-    },
-    {
-        "ImageId_ClassId": "0002cc96b.jpg_2",
-        "EncodedPixels":"29102 12 29346 24 29602 24 29858 24 30114 24 30370 24 30626 24"
-    }
-]
+  {
+    "image": "crazing_2.jpg",
+    "type": 0,
+    "position": "0.7400 0.6675 0.5200 0.3550"
+  },
+  {
+    "image": "crazing_5.jpg",
+    "type": 0,
+    "position": "0.4850 0.7250 0.9700 0.4700"
+  },
+  {
+    "image": "crazing_5.jpg",
+    "type": 0,
+    "position": "0.5225 0.4775 0.9550 0.3650"
+  }
+
+
          */
 
         return res;
@@ -87,6 +95,7 @@ public class ModelResServiceImpl implements ModelResService {
     public void processQuestData(Defect defect){
         defectService.addDefect(defect);
     }
+
 
 }
 

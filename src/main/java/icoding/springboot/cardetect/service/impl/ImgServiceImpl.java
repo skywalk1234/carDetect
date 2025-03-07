@@ -82,22 +82,23 @@ public class ImgServiceImpl implements ImgService {
     @Override
     public int detect_img(Integer imgId,MultipartFile file) {
         String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
-        //需要在这里将响应回来的json格式进行解析和缓存
-
 
         List<ModelResponse> res = modelResService.parseQuestData(res_json);
-        //解析json格式并存入数据库
+        //列表中每一个元素表示一个缺陷,要把文件名和缺陷相同的position拼接成一个字符串，然后给defect
+        //对象赋值，调用modelResService.processQuestData(defect)写入数据库中，同时还要在缓存中写一份
         for(ModelResponse m : res) {
-            //提取列表中每一个的结果构建defect实例
-            Defect defect = new Defect();
-            String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
-            int type = img_name.charAt(img_name.length()-1)-'0';//将字符转成数字
-            defect.setType(type);
-            defect.setImgId(imgId);
-            defect.setPosition(m.getEncodedPixels());
-            defect.setCreateTime(LocalDateTime.now());
-            defect.setSource("machine");
-            modelResService.processQuestData(defect);
+            //提取每一个对象，拿到里面的值
+            //这是之前那个数据格式的代码，已经没用了
+//            //提取列表中每一个的结果构建defect实例
+//            Defect defect = new Defect();
+//            //String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
+//            int type = Integer.parseInt(m.getType());//将字符转成数字
+//            defect.setType(type);
+//            defect.setImgId(imgId);
+//            defect.setPosition(m.getPosition());
+//            defect.setCreateTime(LocalDateTime.now());
+//            defect.setSource("machine");
+//            modelResService.processQuestData(defect);
         }
         return 0;
     }
