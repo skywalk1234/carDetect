@@ -11,6 +11,9 @@ public interface UserMapper {
     @Select("select * from user where username=#{username} and password=#{password}")
     public User findByUsernameAndPassword(String username, String password);
 
+    @Select("select permission from user where username=#{username}")
+    public String findPermission(String username);
+
     @Insert("insert into user (username, password) values (#{username},#{password})")
     public int regist(String username, String password);
 

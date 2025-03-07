@@ -24,7 +24,6 @@ public class DefectController {
         }else{
             return Result.success(defectList);
         }
-
     }
     @DeleteMapping("/img/{id}/flaw/{def_id}")
     public Result deleteDefect(@PathVariable int id, @PathVariable int def_id) {

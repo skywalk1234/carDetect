@@ -1,6 +1,14 @@
 package icoding.springboot.cardetect.service.impl;
 import icoding.springboot.cardetect.pojo.ModelResponse;
 import icoding.springboot.cardetect.utils.JsonUtil;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,35 +36,31 @@ public class ModelResServiceImpl implements ModelResService {
     @Override
     public String sendQuest(MultipartFile file)
     {
-        try {
-            byte[] bytes = file.getBytes();
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost uploadFile = new HttpPost("http://localhost:8080/inspect_img");
 
-            //到时候部署在容器内一定要改这个url
-            String path = "http://localhost:8080/inspect_img";
-            // 创建 HttpRequest 实例
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(path))
-                    .header("Content-Type", "multipart/form-data; boundary=custom_boundary") // 根据需要调整boundary
-                    .POST(HttpRequest.BodyPublishers.ofByteArray(bytes))
-                    .build();
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addBinaryBody(
+                    "image", // 服务器端接受参数的名字
+                    file.getBytes(),
+                    ContentType.MULTIPART_FORM_DATA,
+                    file.getOriginalFilename()
+            );
+            HttpEntity multipart = builder.build();
+            uploadFile.setEntity(multipart);
 
-            // 发送请求并获取响应
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // 输出状态码和响应内容
-            //System.out.println("Response Code: " + response.statusCode());
-            log.info("状态码：{}",response.body());
-            if(response.statusCode() == 200){
-                return response.body();
-            }else{
-                return "响应出现错误";
+            try (CloseableHttpResponse response = httpClient.execute(uploadFile)) {
+                HttpEntity responseEntity = response.getEntity();
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    return EntityUtils.toString(responseEntity, "UTF-8");//返回响应体
+                } else {
+                    return "响应出现错误";
+                }
             }
-            //System.out.println("Response Body: " + response.body());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error occurred while uploading file.", e);
+            return "发生异常";
         }
-        return null;
     }
 
     @Override

@@ -26,6 +26,7 @@ public class Result {
     public static Result success(Object data){
         return new Result(1,"success",data);
     }
+    public static Result identity(String permission,Object data){return new Result(1,permission,data);}
     //失败响应
     public static Result error(String msg){
         return new Result(0,msg,null);

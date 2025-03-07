@@ -49,7 +49,8 @@ public class ImgServiceImpl implements ImgService {
     @Async("taskExecutor") //新建一个线程采用异步执行
     @Override
     public CompletableFuture<Result> processImageAsync(Integer imgId, String imageUrl) {
-//        try {
+//这个功能废弃了，改成下面那个函数
+        //        try {
 //            //1.调用ModelResServiceImpl中的相关方法与机器学习的模型交互，并拿到对应的解析完的数据
 //            log.info("开始处理。。。。。");
 //            //Thread.sleep(5000);//模拟一个耗时操作
@@ -81,8 +82,11 @@ public class ImgServiceImpl implements ImgService {
     @Override
     public int detect_img(Integer imgId,MultipartFile file) {
         String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
-        List<ModelResponse> res = modelResService.parseQuestData(res_json);//解析json格式
+        //需要在这里将响应回来的json格式进行解析和缓存
 
+
+        List<ModelResponse> res = modelResService.parseQuestData(res_json);
+        //解析json格式并存入数据库
         for(ModelResponse m : res) {
             //提取列表中每一个的结果构建defect实例
             Defect defect = new Defect();

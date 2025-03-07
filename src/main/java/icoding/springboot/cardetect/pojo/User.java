@@ -11,4 +11,5 @@ public class User {
     private int id;
     String username;
     String password;
+    String permission;
 }

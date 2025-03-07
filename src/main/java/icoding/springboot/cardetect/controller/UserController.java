@@ -1,5 +1,6 @@
 package icoding.springboot.cardetect.controller;/* I love coding */
 
+import icoding.springboot.cardetect.mapper.UserMapper;
 import icoding.springboot.cardetect.pojo.Result;
 import icoding.springboot.cardetect.pojo.User;
 import icoding.springboot.cardetect.pojo.User2;
@@ -21,7 +22,8 @@ import static icoding.springboot.cardetect.interceptor.CheckInterceptor.current_
 public class UserController {
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private UserMapper userMapper;
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
         User u = userService.login(user.getUsername(),user.getPassword());
@@ -51,6 +53,7 @@ public class UserController {
     }
     @GetMapping("/user-info")
     public Result check(){
-        return Result.success(current_username);
+        String permission = userMapper.findPermission(current_username);
+        return Result.identity(permission,current_username);
     }
 }
