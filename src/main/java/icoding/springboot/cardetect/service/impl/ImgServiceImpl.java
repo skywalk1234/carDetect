@@ -84,6 +84,7 @@ public class ImgServiceImpl implements ImgService {
         String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
 
         List<ModelResponse> res = modelResService.parseQuestData(res_json);
+        //ModelResponse类就是负责跟json里面的字段作映射的
         //列表中每一个元素表示一个缺陷,要把文件名和缺陷相同的position拼接成一个字符串，然后给defect
         //对象赋值，调用modelResService.processQuestData(defect)写入数据库中，同时还要在缓存中写一份
         for(ModelResponse m : res) {
