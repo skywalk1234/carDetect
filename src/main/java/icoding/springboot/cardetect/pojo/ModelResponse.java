@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ModelResponse {
     private String image;
-    private String type;
+    private int type;
     private String position;
 }

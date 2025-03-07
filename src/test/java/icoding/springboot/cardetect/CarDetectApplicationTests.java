@@ -36,25 +36,4 @@ class CarDetectApplicationTests {
 //        defect.setPosition("10045 3 1048 5 1489 6");
 //        defectMapper.insert(defect);
 //    }
-    @Test
-    void parseData(){
-//        String res_json = "";
-//        List<ModelResponse> res = modelResService.parseQuestData(res_json);//解析json格式
-//        System.out.println(res.get(1).getPosition());
-//        for(ModelResponse m : res) {
-//            //提取列表中
-//            log.info("解析json数据中");
-//            Defect defect = new Defect();
-//
-//            int type = Integer.parseInt(m.getType()) ;//将字符转成数字
-//
-//            defect.setType(type);
-//            defect.setImgId(2);
-//            defect.setPosition(m.getPosition());
-//            defect.setCreateTime(LocalDateTime.now());
-//            defect.setSource("machine");
-//            modelResService.processQuestData(defect);
-//
-//        }
-    }
 }
