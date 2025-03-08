@@ -1,31 +1,19 @@
 package icoding.springboot.cardetect.utils;/* I love coding */
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class String_to_json {
-    public static List<List<Double>> transfer(String input){
+    public static List<List<Double>> transfer(String input) throws Exception {
+        // 输入字符串
+        //String input = "[[0.74,0.6675,0.52,0.355],[0.485,0.725,0.97,0.47]]";
 
-        // 分割输入字符串
-        String[] tokens = input.split(" ");
-
-        List<List<Double>> result = new ArrayList<>();
-        List<Double> currentGroup = new ArrayList<>();
-
-        for (String token : tokens) {
-            if (currentGroup.size() == 4) { // 每三个数字创建一个新的列表
-                result.add(currentGroup);
-                currentGroup = new ArrayList<>();
-            }
-            currentGroup.add(Double.parseDouble(token));
-        }
-        if (!currentGroup.isEmpty()) { // 添加最后一个组，如果有的话
-            result.add(currentGroup);
-        }
+        // 使用Jackson的ObjectMapper将JSON字符串转换为List<List<Double>>
+        ObjectMapper mapper = new ObjectMapper();
+        List<List<Double>> result = mapper.readValue(input, List.class);
+        //System.out.println(result);
         return result;
-        // 输出结果
-//        for (List<Double> group : result) {
-//            System.out.println(group);
-//        }
     }
 }

@@ -79,13 +79,13 @@ public class ImgServiceImpl implements ImgService {
     }
     @Override
     public List<Double> parsePosition(String positionStr) {
-    String[] parts = positionStr.split(",");
-    List<Double> position = new ArrayList<>();
-    for (String part : parts) {
-        position.add(Double.parseDouble(part));
+        String[] parts = positionStr.split(" ");
+        List<Double> position = new ArrayList<>();
+        for (String part : parts) {
+            position.add(Double.parseDouble(part));
+        }
+        return position;
     }
-    return position;
-}
     @Override
     public String convertToJsonString(List<List<Double>> positions) {
         StringBuilder jsonBuilder = new StringBuilder();
@@ -135,19 +135,6 @@ public class ImgServiceImpl implements ImgService {
                     return existingPositions;
                 }
             });
-
-            //提取每一个对象，拿到里面的值
-            //这是之前那个数据格式的代码，已经没用了
-//            //提取列表中每一个的结果构建defect实例
-//            Defect defect = new Defect();
-//            //String img_name = m.getImageId_ClassId();//提取图片名字的最后一个字符（就是缺陷类型）
-//            int type = Integer.parseInt(m.getType());//将字符转成数字
-//            defect.setType(type);
-//            defect.setImgId(imgId);
-//            defect.setPosition(m.getPosition());
-//            defect.setCreateTime(LocalDateTime.now());
-//            defect.setSource("machine");
-//            modelResService.processQuestData(defect);
 
         }
         for (Map.Entry<Integer, List<List<Double>>> entry : map.entrySet()) {

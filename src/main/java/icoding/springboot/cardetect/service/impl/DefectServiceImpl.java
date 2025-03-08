@@ -26,13 +26,15 @@ public class DefectServiceImpl implements DefectService {
     @Override
     public List<ResDefect> getDefect(int id) {
         //从缓存里获取
+        log.info("开始从缓存中获取");
         Jedis jedis = RedisUtil.getJedis();
         String key = "defect:imgid" + id;
         String cacheData = jedis.get(key);
-
+        log.info("试图从缓存中获取");
         if (cacheData != null) {
             try {
                 List<Defect> defectList = JSON.parseArray(cacheData, Defect.class);
+                log.info("映射从缓存中拿到的json数据");
                 RedisUtil.close(jedis);
                 //从缓存中拿到的defect转成ResDefect
                 List<ResDefect> resDefectList = new ArrayList<>();
@@ -57,15 +59,19 @@ public class DefectServiceImpl implements DefectService {
         //如果缓存没有想要的数据就从数据库读入并处理position
         List<Defect> deflist = defectMapper.getByImgId(id);
         List<ResDefect> resList = new ArrayList<>();
-        for(Defect defect : deflist) {
-            ResDefect resDefect = new ResDefect(defect.getDefId(),
-                    defect.getImgId(),
-                    defect.getType(),
-                    defect.getSource(),
-                    String_to_json.transfer(defect.getPosition()),
-                    defect.getCreateTime()
-                    );
-            resList.add(resDefect);
+        try{
+            for(Defect defect : deflist) {
+                ResDefect resDefect = new ResDefect(defect.getDefId(),
+                        defect.getImgId(),
+                        defect.getType(),
+                        defect.getSource(),
+                        String_to_json.transfer(defect.getPosition()),
+                        defect.getCreateTime()
+                );
+                resList.add(resDefect);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return resList;
     }
