@@ -119,6 +119,7 @@ public class ImgServiceImpl implements ImgService {
         //ModelResponse类就是负责跟json里面的字段作映射的
         //合并相同文件且相同缺陷的position然后给defect
         //调用modelResService.processQuestData(defect)写入
+
         Map<Integer, List<List<Double>>> map = new HashMap<>();
 
         for (ModelResponse m : res) {
@@ -135,20 +136,18 @@ public class ImgServiceImpl implements ImgService {
                     return existingPositions;
                 }
             });
-
         }
-        for (Map.Entry<Integer, List<List<Double>>> entry : map.entrySet()) {
+
+        map.forEach((type, positions) -> {
             Defect defect = new Defect();
-            defect.setType(entry.getKey());
+            defect.setType(type);
             defect.setImgId(imgId);
-
-            String positionJson = convertToJsonString(entry.getValue());
-
+            String positionJson = convertToJsonString(positions);
             defect.setPosition(positionJson);
             defect.setCreateTime(LocalDateTime.now());
             defect.setSource("machine");
             modelResService.processQuestData(defect);
-        }
+        });
         return 0;
     }
 
