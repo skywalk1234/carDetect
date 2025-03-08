@@ -31,8 +31,9 @@ public class ImgServiceImpl implements ImgService {
     private DefectMapper defectMapper;
     @Autowired
     private ModelResService modelResService;
+
     @Override
-    public Img addImg(String url,String uploader) {
+    public Img addImg(String url, String uploader) {
         Img img = new Img();
 
 
@@ -40,7 +41,6 @@ public class ImgServiceImpl implements ImgService {
         img.setInspectTime(LocalDateTime.now());
         img.setUploader(uploader);
         imgMapper.insert(img);//这是将图片信息写入到数据库的imgs表中
-
 
 
         return imgMapper.get_last_insert_img();
@@ -77,16 +77,65 @@ public class ImgServiceImpl implements ImgService {
 //        }
         return null;
     }
+    @Override
+    public List<Double> parsePosition(String positionStr) {
+    String[] parts = positionStr.split(",");
+    List<Double> position = new ArrayList<>();
+    for (String part : parts) {
+        position.add(Double.parseDouble(part));
+    }
+    return position;
+}
+    @Override
+    public String convertToJsonString(List<List<Double>> positions) {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("[");
 
+        for (int i = 0; i < positions.size(); i++) {
+            List<Double> position = positions.get(i);
+            jsonBuilder.append("[");
+
+            for (int j = 0; j < position.size(); j++) {
+                jsonBuilder.append(position.get(j));
+                if (j < position.size() - 1) {
+                    jsonBuilder.append(",");
+                }
+            }
+
+            jsonBuilder.append("]");
+            if (i < positions.size() - 1) {
+                jsonBuilder.append(",");
+            }
+        }
+
+        jsonBuilder.append("]");
+        return jsonBuilder.toString();
+    }
 
     @Override
-    public int detect_img(Integer imgId,MultipartFile file) {
+    public int detect_img(Integer imgId, MultipartFile file) {
         String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
         List<ModelResponse> res = modelResService.parseQuestData(res_json);
         //ModelResponse类就是负责跟json里面的字段作映射的
         //合并相同文件且相同缺陷的position然后给defect
         //调用modelResService.processQuestData(defect)写入
-        for(ModelResponse m : res) {
+        Map<Integer, List<List<Double>>> map = new HashMap<>();
+
+        for (ModelResponse m : res) {
+            int type = m.getType();
+            String positionStr = m.getPosition();
+            List<Double> position = parsePosition(positionStr);
+            map.compute(type, (key, existingPositions) -> {
+                if (existingPositions == null) {
+                    List<List<Double>> newPositions = new ArrayList<>();
+                    newPositions.add(position);
+                    return newPositions;
+                } else {
+                    existingPositions.add(position);
+                    return existingPositions;
+                }
+            });
+
             //提取每一个对象，拿到里面的值
             //这是之前那个数据格式的代码，已经没用了
 //            //提取列表中每一个的结果构建defect实例
@@ -101,11 +150,23 @@ public class ImgServiceImpl implements ImgService {
 //            modelResService.processQuestData(defect);
 
         }
+        for (Map.Entry<Integer, List<List<Double>>> entry : map.entrySet()) {
+            Defect defect = new Defect();
+            defect.setType(entry.getKey());
+            defect.setImgId(imgId);
+
+            String positionJson = convertToJsonString(entry.getValue());
+
+            defect.setPosition(positionJson);
+            defect.setCreateTime(LocalDateTime.now());
+            defect.setSource("machine");
+            modelResService.processQuestData(defect);
+        }
         return 0;
     }
 
     @Override
-    public PageBean findImg(Integer id,Integer type, String uploader, LocalDateTime time_begin, LocalDateTime time_end, Integer page, Integer pageSize) {
+    public PageBean findImg(Integer id, Integer type, String uploader, LocalDateTime time_begin, LocalDateTime time_end, Integer page, Integer pageSize) {
 //        PageHelper.startPage(page,pageSize);
 //        Set<Img> img_set = imgMapper.findAll(type, uploader, time_begin, time_end);
 //        List<Img> img = new ArrayList<Img>(img_set);
@@ -114,7 +175,7 @@ public class ImgServiceImpl implements ImgService {
 //        return pageBean;
         //返回的类型不再是List需要手动实现分页功能
         // 1. 查询所有符合条件的数据
-        Set<Img> imgSet = imgMapper.findAll(id,type, uploader, time_begin, time_end);
+        Set<Img> imgSet = imgMapper.findAll(id, type, uploader, time_begin, time_end);
 
         // 2. 将 Set 转换为 List
         List<Img> imgList = new ArrayList<>(imgSet);
@@ -131,13 +192,14 @@ public class ImgServiceImpl implements ImgService {
         PageBean pageBean = new PageBean(total, pageList);
         return pageBean;
     }
+
     @Transactional
     @Override
     public int deleteImg(List<Integer> ids) {
-        return imgMapper.deleteById(ids)+imgMapper.deleteByDefId(ids);
+        return imgMapper.deleteById(ids) + imgMapper.deleteByDefId(ids);
     }
 
-//    @Override
+    //    @Override
 //    public Map<String,String> getSignature() {
 //        OssTest ot = new OssTest();
 //        try {
@@ -149,7 +211,7 @@ public class ImgServiceImpl implements ImgService {
 //        }
 //    }
     @Scheduled(cron = "0 0 3 * * ?")//每天凌晨三点执行
-    public void backup(){
+    public void backup() {
         MYSQL_.backup();
     }
 

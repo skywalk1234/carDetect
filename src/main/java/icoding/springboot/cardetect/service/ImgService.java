@@ -21,4 +21,6 @@ public interface ImgService {
     public int restore(LocalDate time);
     public CompletableFuture<Result> processImageAsync(Integer imgId,String imageUrl);
     public int detect_img(Integer imgId,MultipartFile file);
+    public List<Double> parsePosition(String positionStr);
+    public String convertToJsonString(List<List<Double>> positions);
 }
