@@ -82,11 +82,10 @@ public class ImgServiceImpl implements ImgService {
     @Override
     public int detect_img(Integer imgId,MultipartFile file) {
         String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
-
         List<ModelResponse> res = modelResService.parseQuestData(res_json);
         //ModelResponse类就是负责跟json里面的字段作映射的
-        //列表中每一个元素表示一个缺陷,要把文件名和缺陷相同的position拼接成一个字符串，然后给defect
-        //对象赋值，调用modelResService.processQuestData(defect)写入
+        //合并相同文件且相同缺陷的position然后给defect
+        //调用modelResService.processQuestData(defect)写入
         for(ModelResponse m : res) {
             //提取每一个对象，拿到里面的值
             //这是之前那个数据格式的代码，已经没用了

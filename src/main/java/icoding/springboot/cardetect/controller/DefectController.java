@@ -2,6 +2,7 @@ package icoding.springboot.cardetect.controller;/* I love coding */
 
 import icoding.springboot.cardetect.pojo.CountRes;
 import icoding.springboot.cardetect.pojo.Defect;
+import icoding.springboot.cardetect.pojo.ResDefect;
 import icoding.springboot.cardetect.pojo.Result;
 import icoding.springboot.cardetect.service.DefectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class DefectController {
     @GetMapping("/flaw/img/{id}")
     //前端根据对应的图片id请求该图片所有的缺陷信息
     public Result getDefect(@PathVariable int id) {
-        List<Defect> defectList = defectService.getDefect(id);
+        List<ResDefect> defectList = defectService.getDefect(id);
         if(defectList.isEmpty()){
             return Result.error("未找到记录");
         }else{

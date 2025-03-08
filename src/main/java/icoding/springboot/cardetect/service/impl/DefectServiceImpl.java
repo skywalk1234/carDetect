@@ -4,14 +4,17 @@ import com.alibaba.fastjson.JSON;
 import icoding.springboot.cardetect.mapper.DefectMapper;
 import icoding.springboot.cardetect.pojo.CountRes;
 import icoding.springboot.cardetect.pojo.Defect;
+import icoding.springboot.cardetect.pojo.ResDefect;
 import icoding.springboot.cardetect.service.DefectService;
 import icoding.springboot.cardetect.utils.RedisUtil;
+import icoding.springboot.cardetect.utils.String_to_json;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,24 +24,50 @@ public class DefectServiceImpl implements DefectService {
     private DefectMapper defectMapper;
 
     @Override
-    public List<Defect> getDefect(int id) {
+    public List<ResDefect> getDefect(int id) {
         //从缓存里获取
         Jedis jedis = RedisUtil.getJedis();
         String key = "defect:imgid" + id;
         String cacheData = jedis.get(key);
+
         if (cacheData != null) {
             try {
                 List<Defect> defectList = JSON.parseArray(cacheData, Defect.class);
                 RedisUtil.close(jedis);
-                return defectList;
+                //从缓存中拿到的defect转成ResDefect
+                List<ResDefect> resDefectList = new ArrayList<>();
+                for(Defect defect : defectList) {
+                    ResDefect resDefect = new ResDefect(defect.getDefId(),
+                            defect.getImgId(),
+                            defect.getType(),
+                            defect.getSource(),
+                            String_to_json.transfer(defect.getPosition()),
+                            defect.getCreateTime()
+                    );
+                    resDefectList.add(resDefect);
+                }
+                return resDefectList;
             } catch (Exception e) {
                 log.error("running failed when parsing cacheData!", e);
             } finally {
                 RedisUtil.close(jedis);
             }
         }
-        //从数据库读入
-        return defectMapper.getByImgId(id);
+
+        //如果缓存没有想要的数据就从数据库读入并处理position
+        List<Defect> deflist = defectMapper.getByImgId(id);
+        List<ResDefect> resList = new ArrayList<>();
+        for(Defect defect : deflist) {
+            ResDefect resDefect = new ResDefect(defect.getDefId(),
+                    defect.getImgId(),
+                    defect.getType(),
+                    defect.getSource(),
+                    String_to_json.transfer(defect.getPosition()),
+                    defect.getCreateTime()
+                    );
+            resList.add(resDefect);
+        }
+        return resList;
     }
 
     @Override
