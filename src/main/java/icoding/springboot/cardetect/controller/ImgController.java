@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static icoding.springboot.cardetect.interceptor.CheckInterceptor.current_username;
-@CrossOrigin(origins = "http://192.168.177.107:8080")
+//@CrossOrigin(origins = "http://192.168.177.107:8080")
 @RestController
 @Slf4j
 public class ImgController {
@@ -34,8 +34,13 @@ public class ImgController {
 //        return Result.success(res);
 //    }
 
-//    @PostMapping("/upload_img")
-//    public Result uploadImg(@RequestParam("image") List<MultipartFile> images) throws IOException {
+    @PostMapping("/test")
+    public Result test(String image_url){
+        log.info("接收到请求",image_url);
+        return Result.success();
+    }
+    //@PostMapping("/upload_img")
+    //public Result uploadImg(@RequestParam("file") List<MultipartFile> images) throws IOException {
 //        for (MultipartFile file : images) {
 //            String url = ossUtils.upload(file);
 //            if(url != null) {
@@ -45,19 +50,20 @@ public class ImgController {
 //                return Result.error("上传失败");
 //            }
 //        }
-//        return Result.success();
-//        //String url = ossUtils.upload(image);
-//    }
+        //return Result.success();
+        //String url = ossUtils.upload(image);
+    //}
     //前端发送检测请求
-    @GetMapping("/inspect")
-    public Result inspect(String image_url,@RequestParam("image") List<MultipartFile> images){
+    @PostMapping("/inspect")
+    //@RequestParam("image_url")String image_url,@RequestParam("file") MultipartFile file
+    public Result inspect(@RequestParam("image_url")String image_url,@RequestParam("file") MultipartFile file) throws IOException {
+        log.info("接收到请求参数");
         Img img = imgService.addImg(image_url,current_username);
         //这里的img已经是有id的了
-        for(MultipartFile file : images){
-            imgService.detect_img(img.getId(),file);
-        }
-
+        log.info("接收到图片文件");
+        imgService.detect_img(img.getId(),file);
         //CompletableFuture<Result> future = imgService.processImageAsync(img.getId(),image_url);//这一步是异步执行的，不会阻塞主线程
+        //return Result.success();
 
         return Result.success(img);
     }

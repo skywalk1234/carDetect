@@ -1,5 +1,8 @@
 package icoding.springboot.cardetect.service.impl;/* I love coding */
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import icoding.springboot.cardetect.mapper.DefectMapper;
@@ -17,10 +20,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -38,7 +44,7 @@ public class ImgServiceImpl implements ImgService {
 
 
         img.setImage(url);
-        img.setInspectTime(LocalDateTime.now());
+        img.setInspect_time(LocalDateTime.now());
         img.setUploader(uploader);
         imgMapper.insert(img);//这是将图片信息写入到数据库的imgs表中
 
@@ -77,6 +83,7 @@ public class ImgServiceImpl implements ImgService {
 //        }
         return null;
     }
+
     @Override
     public List<Double> parsePosition(String positionStr) {
         String[] parts = positionStr.split(" ");
@@ -113,41 +120,79 @@ public class ImgServiceImpl implements ImgService {
     }
 
     @Override
-    public int detect_img(Integer imgId, MultipartFile file) {
+    public int detect_img(Integer imgId, MultipartFile file){
         String res_json = modelResService.sendQuest(file);//发送请求并拿到响应的json
-        List<ModelResponse> res = modelResService.parseQuestData(res_json);
-        //ModelResponse类就是负责跟json里面的字段作映射的
-        //合并相同文件且相同缺陷的position然后给defect
-        //调用modelResService.processQuestData(defect)写入
+        //测试用
+//        String res_json = "[\n" +
+//                "  {\n" +
+//                "    \"image\": \"crazing_5.jpg\",\n" +
+//                "    \"type\": 2,\n" +
+//                "    \"position\": \"0.7400 0.6675 0.5200 0.3550\"\n" +
+//                "  },\n" +
+//                "  {\n" +
+//                "    \"image\": \"crazing_5.jpg\",\n" +
+//                "    \"type\": 0,\n" +
+//                "    \"position\": \"0.4850 0.7250 0.9700 0.4700\"\n" +
+//                "  },\n" +
+//                "  {\n" +
+//                "    \"image\": \"crazing_5.jpg\",\n" +
+//                "    \"type\": 1,\n" +
+//                "    \"position\": \"0.5225 0.4775 0.9550 0.3650\"\n" +
+//                "  }]";
 
-        Map<Integer, List<List<Double>>> map = new HashMap<>();
 
-        for (ModelResponse m : res) {
-            int type = m.getType();
-            String positionStr = m.getPosition();
-            List<Double> position = parsePosition(positionStr);
-            map.compute(type, (key, existingPositions) -> {
-                if (existingPositions == null) {
-                    List<List<Double>> newPositions = new ArrayList<>();
-                    newPositions.add(position);
-                    return newPositions;
-                } else {
-                    existingPositions.add(position);
-                    return existingPositions;
+            //处理响应的字符串
+            try{
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode rootNode = mapper.readTree(res_json);
+
+                // 获取results节点
+                JsonNode resultsNode = rootNode.path("results");
+
+                // 将JsonNode转换为字符串
+                String resultsStr = resultsNode.toPrettyString();
+
+                //System.out.println(resultsStr);
+
+                System.out.println(resultsStr);
+                List<ModelResponse> res = modelResService.parseQuestData(resultsStr);
+                //ModelResponse类就是负责跟json里面的字段作映射的
+                //合并相同文件且相同缺陷的position然后给defect
+                //调用modelResService.processQuestData(defect)写入
+
+                Map<Integer, List<List<Double>>> map = new HashMap<>();
+
+                for (ModelResponse m : res) {
+                    int type = m.getType();
+                    String positionStr = m.getPosition();
+                    List<Double> position = parsePosition(positionStr);
+                    map.compute(type, (key, existingPositions) -> {
+                        if (existingPositions == null) {
+                            List<List<Double>> newPositions = new ArrayList<>();
+                            newPositions.add(position);
+                            return newPositions;
+                        } else {
+                            existingPositions.add(position);
+                            return existingPositions;
+                        }
+                    });
                 }
-            });
-        }
 
-        map.forEach((type, positions) -> {
-            Defect defect = new Defect();
-            defect.setType(type);
-            defect.setImgId(imgId);
-            String positionJson = convertToJsonString(positions);
-            defect.setPosition(positionJson);
-            defect.setCreateTime(LocalDateTime.now());
-            defect.setSource("machine");
-            modelResService.processQuestData(defect);
-        });
+                map.forEach((type, positions) -> {
+                    Defect defect = new Defect();
+                    defect.setType(type);
+                    defect.setImg_id(imgId);
+                    String positionJson = convertToJsonString(positions);
+                    defect.setPosition(positionJson);
+                    defect.setCreate_time(LocalDateTime.now());
+                    defect.setSource("machine");
+                    modelResService.processQuestData(defect);
+                });
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+
         return 0;
     }
 

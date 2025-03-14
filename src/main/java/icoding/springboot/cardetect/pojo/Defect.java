@@ -12,12 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 public class Defect {
 
-    private int defId;
-    private int imgId;
+    private int def_id;
+    private int img_id;
     private int type;
     private String source;
     private String position;
-    private LocalDateTime createTime;
+    private LocalDateTime create_time;
 //    private float confidence;
 //    private List<Integer> position;
 

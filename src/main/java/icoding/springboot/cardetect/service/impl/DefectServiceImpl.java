@@ -31,7 +31,7 @@ public class DefectServiceImpl implements DefectService {
         String key = "defect:imgid" + id;
         String cacheData = jedis.get(key);
         log.info("试图从缓存中获取");
-        if (cacheData != null) {
+        if (cacheData != null ) {
             try {
                 List<Defect> defectList = JSON.parseArray(cacheData, Defect.class);
                 log.info("映射从缓存中拿到的json数据");
@@ -39,12 +39,12 @@ public class DefectServiceImpl implements DefectService {
                 //从缓存中拿到的defect转成ResDefect
                 List<ResDefect> resDefectList = new ArrayList<>();
                 for(Defect defect : defectList) {
-                    ResDefect resDefect = new ResDefect(defect.getDefId(),
-                            defect.getImgId(),
+                    ResDefect resDefect = new ResDefect(defect.getDef_id(),
+                            defect.getImg_id(),
                             defect.getType(),
                             defect.getSource(),
                             String_to_json.transfer(defect.getPosition()),
-                            defect.getCreateTime()
+                            defect.getCreate_time()
                     );
                     resDefectList.add(resDefect);
                 }
@@ -61,12 +61,12 @@ public class DefectServiceImpl implements DefectService {
         List<ResDefect> resList = new ArrayList<>();
         try{
             for(Defect defect : deflist) {
-                ResDefect resDefect = new ResDefect(defect.getDefId(),
-                        defect.getImgId(),
+                ResDefect resDefect = new ResDefect(defect.getDef_id(),
+                        defect.getImg_id(),
                         defect.getType(),
                         defect.getSource(),
                         String_to_json.transfer(defect.getPosition()),
-                        defect.getCreateTime()
+                        defect.getCreate_time()
                 );
                 resList.add(resDefect);
             }
@@ -94,8 +94,9 @@ public class DefectServiceImpl implements DefectService {
 
     @Override
     public int addDefect(Defect defect) {
-        defect.setCreateTime(LocalDateTime.now());
+        defect.setCreate_time(LocalDateTime.now());
         log.info("source:{}", defect.getSource());
+        //插入数据库
         defectMapper.insert(defect);
         int addId = defectMapper.get_last_insert_def();
         //插入缓存

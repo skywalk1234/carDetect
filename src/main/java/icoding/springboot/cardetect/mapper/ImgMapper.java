@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Mapper
 public interface ImgMapper {
-    @Insert("insert into imgs values (#{id},#{image},#{inspectTime},#{uploader})")
+    @Insert("insert into imgs values (#{id},#{image},#{inspect_time},#{uploader})")
     public void insert(Img img);
     @Select("SELECT * FROM imgs WHERE id = LAST_INSERT_ID()")
     public Img get_last_insert_img();
