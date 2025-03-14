@@ -35,7 +35,7 @@ public class DefectServiceImpl implements DefectService {
             try {
                 List<Defect> defectList = JSON.parseArray(cacheData, Defect.class);
                 log.info("映射从缓存中拿到的json数据");
-                RedisUtil.close(jedis);
+
                 //从缓存中拿到的defect转成ResDefect
                 List<ResDefect> resDefectList = new ArrayList<>();
                 for(Defect defect : defectList) {
@@ -83,8 +83,11 @@ public class DefectServiceImpl implements DefectService {
         if (deleteId > 0) {
             Jedis jedis = RedisUtil.getJedis();
             String key = "defect:imgid" + img_id;
-            jedis.del(key);
-            RedisUtil.close(jedis);
+            try {
+                jedis.del(key);
+            } finally {
+                RedisUtil.close(jedis); // 确保连接关闭
+            }
         }
         return deleteId;
     }
@@ -104,9 +107,7 @@ public class DefectServiceImpl implements DefectService {
         } catch (Exception e) {
             log.error("running failed when add cacheData!", e);
         } finally {
-            {
                 RedisUtil.close(jedis);
-            }
         }
         return addId;
     }
