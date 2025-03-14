@@ -36,30 +36,38 @@ public class ModelResServiceImpl implements ModelResService {
     @Override
     public String sendQuest(MultipartFile file)
     {
+        log.info("文件大小{}",file.getSize());
+        log.info("准备发送请求");
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost uploadFile = new HttpPost("http://localhost:8080/inspect_img");
+            HttpPost uploadFile = new HttpPost("http://ml:8000/inspect_img");
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody(
-                    "image", // 服务器端接受参数的名字
+                    "files", // 确保这个字段名与服务器端接收的一致
                     file.getBytes(),
-                    ContentType.MULTIPART_FORM_DATA,
+                    ContentType.create("image/form-data"),
                     file.getOriginalFilename()
             );
+
             HttpEntity multipart = builder.build();
             uploadFile.setEntity(multipart);
 
+            log.info("发送请求");
             try (CloseableHttpResponse response = httpClient.execute(uploadFile)) {
                 HttpEntity responseEntity = response.getEntity();
                 if (response.getStatusLine().getStatusCode() == 200) {
-                    return EntityUtils.toString(responseEntity, "UTF-8");//返回响应体
+                    log.info("响应成功");
+                    return EntityUtils.toString(responseEntity, "UTF-8"); // 返回响应体
                 } else {
-                    return "响应出现错误";
+                    log.error("响应失败，状态码：{}", response.getStatusLine().getStatusCode());
+                    String errorMessage = EntityUtils.toString(responseEntity, "UTF-8");
+                    log.error("响应消息：{}", errorMessage);
+                    return "响应出现错误: " + errorMessage;
                 }
             }
         } catch (Exception e) {
             log.error("Error occurred while uploading file.", e);
-            return "发生异常";
+            return "发生异常: " + e.getMessage();
         }
     }
 

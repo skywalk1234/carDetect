@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 public class Img {
     private int id;
     private String image;//保存图片的url
-    private LocalDateTime inspectTime;
+    private LocalDateTime inspect_time;
     private String uploader;
 }

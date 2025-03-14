@@ -19,7 +19,7 @@ public interface DefectMapper {
     @Delete("delete from defect where img_id=#{img_id} and def_id=#{def_id}")
     public int delete(Integer img_id,Integer def_id);
 
-    @Insert("insert into defect (img_id,type,source,create_time,position) values (#{imgId},#{type},#{source},#{createTime},#{position})")
+    @Insert("insert into defect (img_id,type,source,create_time,position) values (#{img_id},#{type},#{source},#{create_time},#{position})")
     public int insert(Defect defect);
     @Select("SELECT * FROM defect WHERE def_id = LAST_INSERT_ID()")
     public int get_last_insert_def();
