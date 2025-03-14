@@ -25,20 +25,17 @@ public class DefectServiceImpl implements DefectService {
 
     @Override
     public List<ResDefect> getDefect(int id) {
-        //从缓存里获取
         log.info("开始从缓存中获取");
-        Jedis jedis = RedisUtil.getJedis();
-        String key = "defect:imgid" + id;
-        String cacheData = jedis.get(key);
-        log.info("试图从缓存中获取");
-        if (cacheData != null ) {
-            try {
+        try (Jedis jedis = RedisUtil.getJedis()) {
+            String key = "defect:imgid" + id;
+            String cacheData = jedis.get(key);
+            log.info("试图从缓存中获取");
+            if (cacheData != null) {
                 List<Defect> defectList = JSON.parseArray(cacheData, Defect.class);
                 log.info("映射从缓存中拿到的json数据");
 
-                //从缓存中拿到的defect转成ResDefect
                 List<ResDefect> resDefectList = new ArrayList<>();
-                for(Defect defect : defectList) {
+                for (Defect defect : defectList) {
                     ResDefect resDefect = new ResDefect(defect.getDef_id(),
                             defect.getImg_id(),
                             defect.getType(),
@@ -49,18 +46,16 @@ public class DefectServiceImpl implements DefectService {
                     resDefectList.add(resDefect);
                 }
                 return resDefectList;
-            } catch (Exception e) {
-                log.error("running failed when parsing cacheData!", e);
-            } finally {
-                RedisUtil.close(jedis);
             }
+        } catch (Exception e) {
+            log.error("running failed when parsing cacheData!", e);
         }
 
-        //如果缓存没有想要的数据就从数据库读入并处理position
+        // 如果缓存没有想要的数据就从数据库读入并处理position
         List<Defect> deflist = defectMapper.getByImgId(id);
         List<ResDefect> resList = new ArrayList<>();
-        try{
-            for(Defect defect : deflist) {
+        try {
+            for (Defect defect : deflist) {
                 ResDefect resDefect = new ResDefect(defect.getDef_id(),
                         defect.getImg_id(),
                         defect.getType(),
@@ -70,7 +65,7 @@ public class DefectServiceImpl implements DefectService {
                 );
                 resList.add(resDefect);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return resList;
@@ -78,15 +73,13 @@ public class DefectServiceImpl implements DefectService {
 
     @Override
     public int deleteDefect(int img_id, int def_id) {
-        //删除缓存
         int deleteId = defectMapper.delete(img_id, def_id);
         if (deleteId > 0) {
-            Jedis jedis = RedisUtil.getJedis();
-            String key = "defect:imgid" + img_id;
-            try {
+            try (Jedis jedis = RedisUtil.getJedis()) {
+                String key = "defect:imgid" + img_id;
                 jedis.del(key);
-            } finally {
-                RedisUtil.close(jedis); // 确保连接关闭
+            } catch (Exception e) {
+                log.error("Failed to delete cache", e);
             }
         }
         return deleteId;
@@ -96,19 +89,15 @@ public class DefectServiceImpl implements DefectService {
     public int addDefect(Defect defect) {
         defect.setCreate_time(LocalDateTime.now());
         log.info("source:{}", defect.getSource());
-        //插入数据库
         defectMapper.insert(defect);
         int addId = defectMapper.get_last_insert_def();
-        //插入缓存
-        Jedis jedis = RedisUtil.getJedis();
-        String key = "defect:imgid" + addId;
-        try {
+
+        try (Jedis jedis = RedisUtil.getJedis()) {
+            String key = "defect:imgid" + addId;
             String value = JSON.toJSONString(defect);
             jedis.psetex(key, 60000, value);
         } catch (Exception e) {
             log.error("running failed when add cacheData!", e);
-        } finally {
-                RedisUtil.close(jedis);
         }
         return addId;
     }

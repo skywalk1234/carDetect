@@ -9,7 +9,7 @@ public class RedisUtil {
 
     static {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(100);
+        poolConfig.setMaxTotal(5);
         jedisPool = new JedisPool(poolConfig, "localhost", 6379);
     }
 
@@ -17,9 +17,4 @@ public class RedisUtil {
         return jedisPool.getResource();
     }
 
-    public static void close(Jedis jedis) {
-        if (jedis != null) {
-            jedis.close();
-        }
-    }
 }
